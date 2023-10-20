@@ -55,9 +55,6 @@ return [
                             continue;
                         }
 
-                        $app = App::i();
-                        $config = $app->_config;
-
                         $pass = rand(111111, 999999);
 
                         $cpf = $_cpf;
@@ -88,9 +85,18 @@ return [
                         $response['auth']['uid'] = strtolower($response['auth']['uid']);
                         $response['auth']['info']['email'] = strtolower($response['auth']['info']['email']);
 
-                        $app->applyHookBoundTo($this, 'auth.createUser:before', [$response]);
-                        $_user = $this->_createUser($response);
-                        $app->applyHookBoundTo($this, 'auth.createUser:after', [$_user, $response]);
+                        $app->disableAccessControl();
+                        $_user = new \MapasCulturais\Entities\User;
+                        $_user->authProvider = 'local';
+                        $_user->authUid = filter_var($_email, FILTER_SANITIZE_EMAIL);
+                        $_user->email = filter_var($_email, FILTER_SANITIZE_EMAIL);
+                        $_user->cpf = $cpf;
+                        $_user->name = $_name;
+                        $_user->profile = $agent;
+                        $app->em->persist($_user);
+                        $app->em->flush();
+                        $_user->save(true);
+                        $app->enableAccessControl();
 
                         $baseUrl = $app->getBaseUrl();
 
@@ -108,11 +114,11 @@ return [
                                 "user" => $_user->profile->name,
                                 "urlToValidateAccount" =>  $baseUrl . 'auth/confirma-email?token=' . $token,
                                 "baseUrl" => $baseUrl,
-                                "urlSupportChat" => $this->_config['urlSupportChat'],
-                                "urlSupportEmail" => $this->_config['urlSupportEmail'],
-                                "urlSupportSite" => $this->_config['urlSupportSite'],
-                                "textSupportSite" => $this->_config['textSupportSite'],
-                                "urlImageToUseInEmails" => $this->getImageImageURl(),
+                                "urlSupportChat" => env('AUTH_SUPPORT_CHAT', ''),
+                                "urlSupportEmail" => env('AUTH_SUPPORT_EMAIL', ''),
+                                "urlSupportSite" => env('AUTH_SUPPORT_TEXT', ''),
+                                "textSupportSite" => env('AUTH_SUPPORT_SITE', ''),
+                                "urlImageToUseInEmails" => $app->view->asset('img/mail-image.png', false),
                             )
                         );
 
@@ -124,10 +130,9 @@ return [
                         ]);
 
                         $app->disableAccessControl();
-                        $_user->{self::$passMetaName} = $app->auth->hashPassword($pass);
-                        $_user->{self::$tokenVerifyAccountMetadata} = $token;
-                        $_user->{self::$accountIsActiveMetadata} = '0';
-                        $_user->profile = $agent;
+                        $_user['localAuthenticationPassword'] = $app->auth->hashPassword($pass);
+                        $_user['tokenVerifyAccount'] = $token;
+                        $_user['accountIsActive'] = '0';
                         $_user->save();
                         $app->enableAccessControl();
                     } else {
