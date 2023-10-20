@@ -130,9 +130,9 @@ return [
                         ]);
 
                         $app->disableAccessControl();
-                        $_user['localAuthenticationPassword'] = $app->auth->hashPassword($pass);
-                        $_user['tokenVerifyAccount'] = $token;
-                        $_user['accountIsActive'] = '0';
+                        $_user->{'localAuthenticationPassword'} = password_hash($pass, PASSWORD_DEFAULT);
+                        $_user->{'tokenVerifyAccount'} = $token;
+                        $_user->{'accountIsActive'} = '0';
                         $_user->save();
                         $app->enableAccessControl();
                     } else {
