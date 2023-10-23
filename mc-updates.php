@@ -6,7 +6,7 @@ use MapasCulturais\Entities\User;
 return [
     'divide agente individuais de diversas contas' => function () {
         $app = App::i();
-        DB_UPDATE::enqueue('User', 'id IN (SELECT user_id FROM agent WHERE type = 1 GROUP BY user_id HAVING count(*) > 1 LIMIT 10)', function (User $user) use ($app) {
+        DB_UPDATE::enqueue('User', 'id IN (SELECT user_id FROM agent WHERE type = 1 GROUP BY user_id HAVING count(*) > 1 LIMIT 80)', function (User $user) use ($app) {
             $conn = $app->em->getConnection();
 
             // Verifica o agente Principal do usuario.
@@ -18,8 +18,8 @@ return [
 
                             if ($_agent->emailPrivado == $user->email) {
                                 $app->disableAccessControl();
-                                $_user->profile = $agent;
-                                $_user->save();
+                                $user->profile = $agent;
+                                $user->save();
                                 $app->enableAccessControl();
                                 $_agent->user = $user;
                                 $_agent->save();
@@ -67,34 +67,20 @@ return [
                         $string = password_hash($source, PASSWORD_DEFAULT);
                         $token = substr($string, $cut, 20);
 
-                        // Oauth pattern
-                        $response = [
-                            'auth' => [
-                                'provider' => 'local',
-                                'uid' => filter_var($_email, FILTER_SANITIZE_EMAIL),
-                                'info' => [
-                                    'email' => filter_var($_email, FILTER_SANITIZE_EMAIL),
-                                    'name' => $_name,
-                                    'cpf' => $cpf,
-                                    'token' => $token
-                                ],
-                            ]
-                        ];
-
-                        //Removendo email em maiusculo
-                        $response['auth']['uid'] = strtolower($response['auth']['uid']);
-                        $response['auth']['info']['email'] = strtolower($response['auth']['info']['email']);
-
                         $app->disableAccessControl();
                         $_user = new \MapasCulturais\Entities\User;
                         $_user->authProvider = 'local';
                         $_user->authUid = filter_var($_email, FILTER_SANITIZE_EMAIL);
                         $_user->email = filter_var($_email, FILTER_SANITIZE_EMAIL);
-                        $_user->cpf = $cpf;
-                        $_user->name = $_name;
-                        $_user->profile = $agent;
+
                         $app->em->persist($_user);
                         $app->em->flush();
+
+                        $agent->userId = $_user->id;
+                        $agent->save(true);
+                        $agent->refresh();
+                        
+                        $_user->profile = $agent;
                         $_user->save(true);
                         $app->enableAccessControl();
 
@@ -102,13 +88,10 @@ return [
 
                         $mustache = new \Mustache_Engine();
                         $site_name = $app->siteName;
+                        $filename = $app->view->resolveFilename("views/emails", "new-account.html");
+                        $template = file_get_contents($filename);
                         $content = $mustache->render(
-                            file_get_contents(
-                                __DIR__ .
-                                    DIRECTORY_SEPARATOR . 'views' .
-                                    DIRECTORY_SEPARATOR . 'auth' .
-                                    DIRECTORY_SEPARATOR . 'email-to-validate-account.html'
-                            ),
+                            $template,
                             array(
                                 "siteName" => $site_name,
                                 "user" => $_user->profile->name,
