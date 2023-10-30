@@ -6,11 +6,11 @@
                 <tr>
                     <td>
                         <p>
-                            Olá, [SEU NOME].
+                            Olá, {{user}}.
                         </p>
                         <p>
                             Você está recebendo este e-mail porque identificamos que você possui um cadastro de agente
-                            individual no [NOME DO SITE], porém seu cadastro estava vinculado ao usuário [NOME DO DONO].
+                            individual no {{siteName}}, porém seu cadastro estava vinculado ao usuário {{owner}}.
                         </p>
                         <p>
                             Para atender à LGPD, criamos uma nova conta que permitirá que você acesse seu cadastro sem
@@ -25,6 +25,7 @@
                             Solicitamos que clique neste link e crie uma senha. Assim que o antigo usuário aceitar a
                             solicitação, você poderá acessar sua conta com seu e-mail e a senha fornecida aqui.
                         </p>
+                        <a href="{{url}}">Recuperar Senha</a>
                         <p>
                             Desde já, agradecemos.
                         </p>

@@ -6,7 +6,7 @@ use MapasCulturais\Entities\User;
 return [
     'divide agente individuais de diversas contas' => function () {
         $app = App::i();
-        DB_UPDATE::enqueue('User', 'id IN (SELECT user_id FROM agent WHERE type = 1 GROUP BY user_id HAVING count(*) > 1 LIMIT 80)', function (User $user) use ($app) {
+        DB_UPDATE::enqueue('User', 'id IN (SELECT user_id FROM agent WHERE type = 1 GROUP BY user_id HAVING count(*) > 1 LIMIT 30)', function (User $user) use ($app) {
             $conn = $app->em->getConnection();
 
             // Verifica o agente Principal do usuario.
@@ -85,6 +85,8 @@ return [
                         $app->enableAccessControl();
 
                         $baseUrl = $app->getBaseUrl();
+                        $app->redirect($app->controller('auth')->createUrl(''), 401);
+                        $url =$app->baseUrl . 'autenticacao/?t=' . $token;
 
                         $mustache = new \Mustache_Engine();
                         $site_name = $app->siteName;
@@ -93,6 +95,7 @@ return [
                         $content = $mustache->render(
                             $template,
                             array(
+                                "url" => $url,
                                 "siteName" => $site_name,
                                 "user" => $_user->profile->name,
                                 "urlToValidateAccount" =>  $baseUrl . 'auth/confirma-email?token=' . $token,
