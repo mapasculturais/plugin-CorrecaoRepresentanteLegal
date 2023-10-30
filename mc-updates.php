@@ -98,12 +98,9 @@ return [
                                 "url" => $url,
                                 "siteName" => $site_name,
                                 "user" => $_user->profile->name,
+                                "oldUser" => $user->profile->name,
                                 "urlToValidateAccount" =>  $baseUrl . 'auth/confirma-email?token=' . $token,
                                 "baseUrl" => $baseUrl,
-                                "urlSupportChat" => env('AUTH_SUPPORT_CHAT', ''),
-                                "urlSupportEmail" => env('AUTH_SUPPORT_EMAIL', ''),
-                                "urlSupportSite" => env('AUTH_SUPPORT_TEXT', ''),
-                                "textSupportSite" => env('AUTH_SUPPORT_SITE', ''),
                                 "urlImageToUseInEmails" => $app->view->asset('img/mail-image.png', false),
                             )
                         );
@@ -122,7 +119,6 @@ return [
                         $_user->save();
                         $app->enableAccessControl();
                     } else {
-                        // Adicionar meta dado com fleg para revisar o Agente  (adicionar na tabela agent_meta com o key = 'revisar-cadastro')
                         $id = $conn->fetchScalar("SELECT nextval('agent_meta_id_seq'::regclass)");
                         $conn->insert('agent_meta', ['id' => $id, 'object_id' => $agent->id, 'key' => 'revisar-cadastro', 'value' => 'revisar-cadastro']);
                     }
