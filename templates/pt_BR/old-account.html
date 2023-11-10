@@ -1,0 +1,52 @@
+{{{_header}}}
+<table role="presentation" class="main">
+    <tr>
+        <td class="wrapper">
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td>
+                        <p>
+                            Olá, {{user}}.
+                        </p>
+                        <p>
+                            Você está recebendo este e-mail porque identificamos que vocẽ possui mais de um agente como agente
+                            individual no {{siteName}} e para atender à LGPD foram feitas algumas mudanças em sua conta. 
+                            {{oldUser}}.
+                        </p>
+                        <p>
+                            Para os agentes que tinham CPF e contas de E-mail cadastrados foi criado um novo usuário e 
+                            enviado um email para que o mesmo recupere seu acesso atravez de um link.
+                        </p>
+
+                        <p>
+                            Para os agentes que tinham CPF e mas não tinham E-mail cadastrados, você deve entrar em contato com suporte e solicitar reset de senha informando 
+                            que deseja ter seu acesso restabeleciso a este agente.
+                        </p>
+
+                        <p>
+                            Para os agentes que não tinham CPF e não tinham E-mail cadastrados, você deve entrar em contato com suporte e solicitar reset de senha informando 
+                            que deseja ter seu acesso restabeleciso a este agente.
+                        </p>
+
+                        <p>
+                            Segue abaixo dados das contas que foram manipuladas.
+                        </p>
+
+                        <p>
+                            {{#oldUsers}}
+                                <div>
+                                    {{.}}  
+                                </div>
+                            {{/oldUsers}}
+                        </p>
+                       
+                        <p>
+                            Desde já, agradecemos.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+{{{_footer}}}
