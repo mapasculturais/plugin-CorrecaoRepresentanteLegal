@@ -19,7 +19,6 @@ return [
                 $conn->insert('agent_meta', ['id' => $id, 'object_id' => $agent->id, 'key' => 'mc-usuario-cadastro-origem', 'value' => $user->profile->id]);
             };
 
-
             $setUserAgent = function ($agent, $user) use ($setHistoryModify) {
                 $agent->userId = $user->id;
                 $agent->save(true);
@@ -27,7 +26,7 @@ return [
                 $setHistoryModify($agent);
 
                 $agent->deletePermissionsCache();
-                $agent->recreatePermissionCache();
+                $agent->enqueueToPCacheRecreation();
 
                 return $agent;
             };
@@ -112,6 +111,7 @@ return [
                 $relation->owner = $_new;
                 $relation->group = "group-admin";
                 $relation->status = AgentRelation::STATUS_PENDING;
+                $relation->hasControl = true;
                 $relation->save(true);
 
                 $request = new RequestEntityOwner($_old->user);
