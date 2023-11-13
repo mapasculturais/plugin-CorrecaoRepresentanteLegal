@@ -25,6 +25,10 @@ return [
                 $agent->save(true);
                 $agent->refresh();
                 $setHistoryModify($agent);
+
+                $agent->deletePermissionsCache();
+                $agent->recreatePermissionCache();
+
                 return $agent;
             };
 
@@ -123,6 +127,14 @@ return [
             $old_agent_default = null;
             foreach ($user->agents as $agent) {
                 if ($user->profile->id == $agent->id) {
+
+                    if($agent->type->id == 2){
+                        $agent->setType(1);
+                        $agent->status = 0;
+                        $agent->cnpj = null;
+                        $agent->save(true);
+                        $agent->_newModifiedRevision();
+                    }
                     $old_agent_default = $agent;
                     break;
                 }
